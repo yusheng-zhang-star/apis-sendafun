@@ -138,11 +138,25 @@ async function main() {
 
     const categories = [...new Set(entries.map((e) => e.category))].sort();
 
+    // 内容未变化时保留旧时间戳，避免上游无变更时也产生 diff / 触发提交
+    let prevUpdatedAt = null;
+    try {
+      const prev = JSON.parse(await readFile(OUT_FILE, 'utf8'));
+      const same =
+        JSON.stringify(prev.apis) === JSON.stringify(entries) &&
+        JSON.stringify(prev.categories) === JSON.stringify(categories);
+      if (same && prev.meta && prev.meta.updatedAt) {
+        prevUpdatedAt = prev.meta.updatedAt;
+      }
+    } catch (e) {
+      /* 首次生成或无历史文件，忽略 */
+    }
+
     const payload = {
       meta: {
         source: 'https://github.com/public-apis/public-apis',
         license: 'MIT',
-        updatedAt: new Date().toISOString(),
+        updatedAt: prevUpdatedAt || new Date().toISOString(),
         count: entries.length,
         categories: categories.length,
       },
