@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>apis-sendafun — Public API Directory</title>
+  <meta name="description" content="Search, filter and copy 1,600+ free public APIs. Open source, daily-updated dataset from public-apis.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="./">apis-sendafun</a>
+      <div class="header-right">
+        <a class="header-link" href="https://github.com/yusheng-zhang-star/apis-sendafun" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <button id="themeToggle" class="btn-theme" type="button" aria-label="Toggle color theme">Dark</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="toolbar" aria-label="Search and filters">
+      <div class="search-row">
+        <input
+          id="searchInput"
+          type="search"
+          placeholder="Search API name, description or category…"
+          autocomplete="off"
+          spellcheck="false"
+          aria-label="Search APIs"
+        >
+      </div>
+
+      <div class="filter-row">
+        <label class="filter">
+          <span class="filter-label">Category</span>
+          <select id="filterCategory" aria-label="Filter by category">
+            <option value="all">All</option>
+          </select>
+        </label>
+
+        <label class="filter">
+          <span class="filter-label">Auth</span>
+          <select id="filterAuth" aria-label="Filter by auth">
+            <option value="all">All</option>
+            <option value="yes">Required</option>
+            <option value="no">Not required</option>
+          </select>
+        </label>
+
+        <label class="filter">
+          <span class="filter-label">HTTPS</span>
+          <select id="filterHttps" aria-label="Filter by HTTPS">
+            <option value="all">All</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </label>
+
+        <label class="filter">
+          <span class="filter-label">CORS</span>
+          <select id="filterCors" aria-label="Filter by CORS">
+            <option value="all">All</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+            <option value="unknown">Unknown</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="result-meta">
+        <span id="resultCount">Loading…</span>
+        <span id="updatedAt" class="meta-muted"></span>
+      </div>
+    </section>
+
+    <section id="grid" class="grid" aria-live="polite"></section>
+
+    <div id="empty" class="empty" hidden>
+      No APIs match your current filters. Try clearing the search or adjusting the filters.
+    </div>
+
+    <nav id="pagination" class="pagination" aria-label="Pagination"></nav>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-links">
+        <a href="https://github.com/yusheng-zhang-star/apis-sendafun" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
+        <a href="https://sendafun.com" target="_blank" rel="noopener noreferrer">sendafun.com</a>
+        <a href="https://smartimgkit.com/" target="_blank" rel="noopener noreferrer">smartimgkit.com</a>
+      </div>
+      <p class="footer-credit">
+        Open source project. API dataset sourced from
+        <a href="https://github.com/public-apis/public-apis" target="_blank" rel="noopener noreferrer">public-apis</a>, MIT License.
+      </p>
+      <p class="footer-affiliate">
+        Dev tooling essentials:
+        <span id="affiliateLinks"></span>
+      </p>
+      <p class="footer-note">apis-sendafun · MIT License · no account required</p>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

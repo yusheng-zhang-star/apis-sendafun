@@ -1,0 +1,13 @@
+{
+  "name": "apis-sendafun",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Public API directory tool - search, filter and copy free public APIs. Dataset from public-apis (MIT).",
+  "scripts": {
+    "update:dataset": "node scripts/update-dataset.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

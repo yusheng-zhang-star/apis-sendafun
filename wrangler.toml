@@ -1,0 +1,18 @@
+# ============================================================
+# Cloudflare Workers 配置 — apis-sendafun
+# 纯静态 SPA：public/ 目录作为静态资源，SPA 回退到 index.html
+# ============================================================
+
+name = "apis-sendafun"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "./public"
+not_found_handling = "single-page-application"
+
+# 自定义域名（如已在 Cloudflare 配置 CNAME: apis.sendafun.com -> *.workers.dev）
+# 若在 dashboard 上绑定域名，此字段可省略；如需写死可取消注释：
+# routes = [
+#   { pattern = "apis.sendafun.com", custom_domain = true }
+# ]
