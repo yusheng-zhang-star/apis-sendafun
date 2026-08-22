@@ -7,11 +7,8 @@ name = "apis-sendafun"
 compatibility_date = "2024-12-01"
 compatibility_flags = ["nodejs_compat"]
 
-# 自定义域名：Cloudflare 自动创建 DNS 记录并签发证书
-# 注意：routes 必须放在 [assets] 等 table 段之前，否则会被解析为该段的子字段
-routes = [
-  { pattern = "apis.sendafun.com", custom_domain = true }
-]
+# 自定义域名 apis.sendafun.com 已在 Cloudflare Workers Custom Domains 持久绑定
+# （独立于本文件，deploy 不需要 routes 权限；勿再加 routes，CI token 无 zone 路由权限）
 
 [assets]
 directory = "./public"
