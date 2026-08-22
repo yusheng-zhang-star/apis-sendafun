@@ -449,12 +449,32 @@ function buildCurl(url, hasAuth) {
   return cmd;
 }
 
+/* ---------- Visitor counter (busuanzi) ---------- */
+
+function initVisitorCount() {
+  var wrap = document.getElementById('visitorCount');
+  var uv = document.getElementById('busuanzi_value_site_uv');
+  if (!wrap || !uv) return;
+  var tries = 0;
+  var timer = setInterval(function () {
+    tries++;
+    if ((uv.textContent || '').trim()) {
+      wrap.style.display = '';
+      clearInterval(timer);
+    } else if (tries >= 40) {
+      // 约 4s 后仍未加载完成则不显示，避免页脚出现空占位
+      clearInterval(timer);
+    }
+  }, 100);
+}
+
 /* ---------- Boot ---------- */
 
 function boot() {
   initGA4();
   initTheme();
   initAffiliate();
+  initVisitorCount();
   wireEvents();
   loadData();
   track('page_view', { page_location: window.location.href });
