@@ -1,11 +1,13 @@
 # ============================================================
 # Cloudflare Workers 配置 — apis-sendafun
-# 纯静态 SPA：public/ 目录作为静态资源，SPA 回退到 index.html
+# Worker 脚本 (src/index.js) + 静态资源 (public/) 混合部署
 # ============================================================
 
 name = "apis-sendafun"
 compatibility_date = "2024-12-01"
 compatibility_flags = ["nodejs_compat"]
+
+main = "src/index.js"
 
 # 自定义域名 apis.sendafun.com 已在 Cloudflare Workers Custom Domains 持久绑定
 # （独立于本文件，deploy 不需要 routes 权限；勿再加 routes，CI token 无 zone 路由权限）
@@ -13,3 +15,7 @@ compatibility_flags = ["nodejs_compat"]
 [assets]
 directory = "./public"
 not_found_handling = "single-page-application"
+
+[[kv_namespaces]]
+binding = "apisKV"
+id = "9b3e5fd75daf40b79b3926b348e71821"

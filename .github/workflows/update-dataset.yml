@@ -1,10 +1,10 @@
 # ============================================================
 # 每日数据集自动更新 + 自动部署工作流
-# cron: UTC 16:00 == 北京时间 00:00 (UTC+8)，每天一次
-# 拉取 public-apis 上游 README 生成 public/data/apis.json；
-# 仅在内容有变更时提交并 push 到 main，随后用 wrangler 部署到
-# Cloudflare Workers（apis.sendafun.com）。
-# 拉取/解析失败时脚本以非零码退出，跳过本次更新，保留旧数据，不破坏线上站点。
+# cron: UTC 17:00 == 北京时间 01:00 (UTC+8)，每天一次
+# 1) 拉取 public-apis 上游 README 生成 public/data/apis.json；
+# 2) 若仓库内任一相关文件（数据集 / 前端 / Worker）发生变更则提交并 push；
+# 3) 用 wrangler 部署到 Cloudflare Workers（apis.sendafun.com）。
+# 拉取/解析失败时数据集脚本以非零码退出，跳过更新，保留旧数据，不破坏线上站点。
 # 手动触发可传 force_deploy=true 强制部署一次（用于验证部署链路）。
 # ============================================================
 
@@ -12,11 +12,11 @@ name: Update API Dataset
 
 on:
   schedule:
-    - cron: "0 16 * * *"
+    - cron: "0 17 * * *"
   workflow_dispatch:
     inputs:
       force_deploy:
-        description: "Force deploy even if dataset unchanged"
+        description: "Force deploy even if nothing changed"
         type: boolean
         default: false
 
@@ -43,9 +43,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/data/apis.json
+          git add -A
           if git diff --cached --quiet; then
-            echo "No dataset changes. Skipping commit."
+            echo "No changes. Skipping commit."
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             git commit -m "chore: sync API dataset $(date -u +%Y-%m-%d)"

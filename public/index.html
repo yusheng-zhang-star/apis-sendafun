@@ -1,88 +1,113 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="zh-CN" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>apis-sendafun — Public API Directory</title>
-  <meta name="description" content="Search, filter and copy 1,600+ free public APIs. Open source, daily-updated dataset from public-apis.">
+  <title>APIS SendAFun — 全球免费公共 API 索引与在线调试平台</title>
+  <meta name="description" content="搜索、筛选并在线调试 1,600+ 免费公共 API。支持健康检测、在线 Playground、多语言代码生成，数据来自 public-apis（MIT License），每日自动更新。">
+  <meta name="keywords" content="free api, public api, api index, api playground, 免费接口, 公共API, API目录, API在线调试">
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="assets/app.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "APIS SendAFun",
+    "alternateName": "apis.sendafun.com",
+    "url": "https://apis.sendafun.com/",
+    "description": "Search, filter and test free public APIs online with health checks and a built-in playground.",
+    "inLanguage": "zh-CN",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://apis.sendafun.com/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
 </head>
 <body>
 
   <header class="site-header">
     <div class="container header-inner">
       <a class="brand" href="./">apis-sendafun</a>
-      <div class="header-right">
+      <nav class="header-nav">
+        <a class="header-link" href="#" data-view="home">首页</a>
+        <a class="header-link" href="#" data-open="submit">提交 API</a>
+        <a class="header-link" href="#about" data-open="about">关于</a>
         <a class="header-link" href="https://github.com/yusheng-zhang-star/apis-sendafun" target="_blank" rel="noopener noreferrer">GitHub</a>
-        <button id="themeToggle" class="btn-theme" type="button" aria-label="Toggle color theme">Dark</button>
-      </div>
+        <button id="themeToggle" class="btn-theme" type="button" aria-label="切换明暗主题">暗色</button>
+      </nav>
     </div>
   </header>
 
   <main class="container">
-    <section class="toolbar" aria-label="Search and filters">
-      <div class="search-row">
-        <input
-          id="searchInput"
-          type="search"
-          placeholder="Search API name, description or category…"
-          autocomplete="off"
-          spellcheck="false"
-          aria-label="Search APIs"
-        >
-      </div>
 
-      <div class="filter-row">
-        <label class="filter">
-          <span class="filter-label">Category</span>
-          <select id="filterCategory" aria-label="Filter by category">
-            <option value="all">All</option>
-          </select>
-        </label>
+    <!-- 首页激活 -->
+    <section id="view-home">
+      <!-- 概览看板 -->
+      <section class="hero">
+        <div class="hero-txt">
+          <h1>全球免费公共 API 索引与调试平台</h1>
+          <p>搜索、筛选、检测并在线调试 <strong id="statTotal">…</strong> 个免费公共 API。每天自动同步更新，即开即用。</p>
+        </div>
+        <div class="stats">
+          <div class="stat"><span id="statApis">…</span><label>API 总数</label></div>
+          <div class="stat"><span id="statCats">…</span><label>分类</label></div>
+          <div class="stat"><span id="statPv">…</span><label>累计访问</label></div>
+          <div class="stat"><span id="statToday">…</span><label>今日访问</label></div>
+        </div>
+      </section>
 
-        <label class="filter">
-          <span class="filter-label">Auth</span>
-          <select id="filterAuth" aria-label="Filter by auth">
-            <option value="all">All</option>
-            <option value="yes">Required</option>
-            <option value="no">Not required</option>
-          </select>
-        </label>
+      <section class="toolbar" aria-label="搜索与筛选">
+        <div class="search-row">
+          <input id="searchInput" type="search" placeholder="搜索 API 名称、描述或分类…" autocomplete="off" spellcheck="false" aria-label="搜索 API">
+        </div>
+        <div class="filter-row">
+          <label class="filter">分类
+            <select id="filterCategory"><option value="all">全部</option></select>
+          </label>
+          <label class="filter">鉴权
+            <select id="filterAuth">
+              <option value="all">全部</option>
+              <option value="yes">需要</option>
+              <option value="no">无需</option>
+            </select>
+          </label>
+          <label class="filter">HTTPS
+            <select id="filterHttps">
+              <option value="all">全部</option>
+              <option value="yes">是</option>
+              <option value="no">否</option>
+            </select>
+          </label>
+          <label class="filter">CORS
+            <select id="filterCors">
+              <option value="all">全部</option>
+              <option value="yes">支持</option>
+              <option value="no">不支持</option>
+              <option value="unknown">未知</option>
+            </select>
+          </label>
+        </div>
+        <div class="result-meta">
+          <span id="resultCount">加载中…</span>
+          <span id="updatedAt" class="meta-muted"></span>
+        </div>
+        <div class="category-chips" id="categoryChips"></div>
+      </section>
 
-        <label class="filter">
-          <span class="filter-label">HTTPS</span>
-          <select id="filterHttps" aria-label="Filter by HTTPS">
-            <option value="all">All</option>
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
-          </select>
-        </label>
+      <section id="grid" class="grid" aria-live="polite"></section>
+      <div id="empty" class="empty" hidden>没有符合筛选条件的 API，可尝试清空搜索或调整筛选条件。</div>
+      <nav id="pagination" class="pagination" aria-label="分页"></nav>
 
-        <label class="filter">
-          <span class="filter-label">CORS</span>
-          <select id="filterCors" aria-label="Filter by CORS">
-            <option value="all">All</option>
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
-            <option value="unknown">Unknown</option>
-          </select>
-        </label>
-      </div>
-
-      <div class="result-meta">
-        <span id="resultCount">Loading…</span>
-        <span id="updatedAt" class="meta-muted"></span>
-      </div>
+      <section id="about" class="about" hidden>
+        <h2>关于本项目</h2>
+        <p>apis.sendafun.com 是一个开源的免费公共 API 索引平台，面向开发者提供搜索、筛选、健康检测、在线 Playground 调试与多语言代码生成能力。</p>
+        <p>数据集来源：<a href="https://github.com/public-apis/public-apis" target="_blank" rel="noopener noreferrer">public-apis</a>（MIT License），通过 GitHub Actions 每日自动同步；同时欢迎开发者通过“提交 API”贡献新接口。</p>
+        <p>数据许可：本项目代码 MIT License；API 数据集遵循 public-apis 的 MIT License。</p>
+      </section>
     </section>
-
-    <section id="grid" class="grid" aria-live="polite"></section>
-
-    <div id="empty" class="empty" hidden>
-      No APIs match your current filters. Try clearing the search or adjusting the filters.
-    </div>
-
-    <nav id="pagination" class="pagination" aria-label="Pagination"></nav>
   </main>
 
   <footer class="site-footer">
@@ -93,23 +118,53 @@
         <a href="https://smartimgkit.com/" target="_blank" rel="noopener noreferrer">smartimgkit.com</a>
       </div>
       <p class="footer-credit">
-        Open source project. API dataset sourced from
-        <a href="https://github.com/public-apis/public-apis" target="_blank" rel="noopener noreferrer">public-apis</a>, MIT License.
+        开源项目 · API 数据集来自
+        <a href="https://github.com/public-apis/public-apis" target="_blank" rel="noopener noreferrer">public-apis</a>，MIT License。
       </p>
-      <p class="footer-affiliate">
-        Dev tooling essentials:
-        <span id="affiliateLinks"></span>
-      </p>
+      <p class="footer-affiliate">开发者必备工具：<span id="affiliateLinks"></span></p>
       <p class="footer-note">
-        <span id="visitorCount" class="visitor-count"><span id="busuanzi_value_site_uv"></span> visitors</span>
-        · apis-sendafun · MIT License · no account required
+        <span id="visitorCount" class="visitor-count placeholder">加载访问量…</span>
+        · apis-sendafun · MIT License · 无需注册
       </p>
     </div>
   </footer>
 
+  <!-- API 详情弹窗 -->
+  <div id="detailModal" class="modal" hidden>
+    <div class="modal-backdrop" data-close="detail"></div>
+    <div class="modal-panel modal-lg" role="dialog" aria-modal="true">
+      <button class="modal-close" data-close="detail" aria-label="关闭">×</button>
+      <div id="detailBody"></div>
+    </div>
+  </div>
+
+  <!-- 提交 API 弹窗 -->
+  <div id="submitModal" class="modal" hidden>
+    <div class="modal-backdrop" data-close="submit"></div>
+    <div class="modal-panel" role="dialog" aria-modal="true">
+      <button class="modal-close" data-close="submit" aria-label="关闭">×</button>
+      <h2 class="modal-title">提交新的免费 API</h2>
+      <form id="submitForm" class="form">
+        <label>API 名称 *<input name="name" required placeholder="例如：OpenWeather" maxlength="120"></label>
+        <label>官方 / 文档链接 *<input name="url" required type="url" placeholder="https://…" maxlength="500"></label>
+        <label>简要描述<textarea name="description" rows="3" placeholder="用一句话描述这个 API 的用途" maxlength="500"></textarea></label>
+        <div class="form-row">
+          <label>分类<input name="category" list="catlist" placeholder="例如：Weather" maxlength="80"></label>
+          <datalist id="catlist"></datalist>
+          <label>鉴权方式<select name="auth"><option>Unknown</option><option>No</option><option>apiKey</option><option>OAuth</option><option>X-Mashape-Key</option><option>User-Agent</option></select></label>
+          <label>CORS<select name="cors"><option>Unknown</option><option>yes</option><option>no</option></select></label>
+        </div>
+        <label>联系邮箱（可选）<input name="email" type="email" placeholder="用于接收审核结果" maxlength="120"></label>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">提交</button>
+          <button class="btn" type="button" data-close="submit">取消</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="assets/app.js"></script>
-  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </body>
 </html>
