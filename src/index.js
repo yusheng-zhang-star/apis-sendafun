@@ -6,16 +6,21 @@
  *   - /api/health   健康探测（详情页实时检测 API 可用性）
  *   - /api/playground  Playground 代理（绕过 CORS，含 SSRF 防护 / 超时 / 大小限制）
  *   - /api/submit   用户提交新 API（写入 KV 待审列表，去重）
+ *   - /api/community  返回已审核通过的社区 API（公开只读）
+ *   - /api/admin/login|pending|review  管理后台（仅管理员，Secret 密码 + 24h session）
  *   - 其余路径      交由静态资源 (ASSETS) 渲染 SPA
  */
 
 const COUNTER_UV_TTL = 365 * 24 * 60 * 60; // 秒
 const DAILY_UV_TTL = 3 * 24 * 60 * 60;
+const SESSION_TTL = 24 * 60 * 60; // 24h
 const HEALTH_TIMEOUT_MS = 8000;
 const PLAYGROUND_TIMEOUT_MS = 9500;
 const MAX_BODY_BYTES = 1024 * 1024; // 1MB
 
 const JSON_HEADERS = { 'content-type': 'application/json; charset=utf-8' };
+const PENDING_KEY = 'submit:pending';
+const APPROVED_KEY = 'submit:approved';
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: JSON_HEADERS });
@@ -29,23 +34,27 @@ function getIp(request) {
   return request.headers.get('CF-Connecting-IP') || 'unknown';
 }
 
+const cookieHeader = (request, name) => {
+  const list = (request.headers.get('Cookie') || '').split(';').map((s) => s.trim());
+  const hit = list.find((s) => s.startsWith(name + '='));
+  return hit ? decodeURIComponent(hit.slice(name.length + 1)) : '';
+};
+
 /* ---------- 私有 IP 判断（SSRF 防护） ---------- */
 function isPrivateHost(host) {
   const h = String(host || '').toLowerCase().replace(/^\[|\]$/g, '').trim();
   if (!h) return true;
-  // 本机 / 保留域名
   if (h === 'localhost' || h === 'localtest.me' || h.endsWith('.local')) return true;
-  // 若是 IPv4 字面量，检查私有/保留段
   const m = h.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
   if (m) {
     const a = +m[1], b = +m[2], c = +m[3], d = +m[4];
     if (a >= 255 || b >= 255 || c >= 255 || d >= 255) return true;
-    if (a === 10) return true;                    // 10.0.0.0/8
-    if (a === 172 && b >= 16 && b <= 31) return true; // 172.16/12
-    if (a === 192 && b === 168) return true;      // 192.168/16
+    if (a === 10) return true;
+    if (a === 172 && b >= 16 && b <= 31) return true;
+    if (a === 192 && b === 168) return true;
     if (a === 127 || a === 0) return true;
-    if (a >= 224) return true;                    // 组播/保留
-    if (a === 169 && b === 254) return true;      // link-local
+    if (a >= 224) return true;
+    if (a === 169 && b === 254) return true;
   }
   return false;
 }
@@ -67,7 +76,6 @@ async function clampResponse(res) {
   } else {
     bodyText = await res.text();
     size = new Blob([bodyText]).size;
-    // 直接读取后若超限则截断展示
     if (size > MAX_BODY_BYTES) bodyText = bodyText.slice(0, MAX_BODY_BYTES);
   }
   const headers = {};
@@ -81,12 +89,9 @@ async function handleCounter(request, env) {
   const totalKey = 'ct:total';
   const dailyKey = 'ct:d:' + date;
 
-  let uvid = request.headers.get('Cookie')
-    ?.split(';').map((s) => s.trim())
-    .filter((s) => s.startsWith('uvid=')).map((s) => s.slice(5))[0] || '';
+  let uvid = cookieHeader(request, 'uvid');
   const isNewVisit = !uvid;
 
-  // 读取现有计数
   const [totRaw, dayRaw] = await Promise.all([
     env.apisKV.get(totalKey, 'json'),
     env.apisKV.get(dailyKey, 'json'),
@@ -97,16 +102,13 @@ async function handleCounter(request, env) {
   total.pv = (total.pv || 0) + 1;
   today.pv = (today.pv || 0) + 1;
 
-  // 唯一访客识别：无 cookie 时生成一个
   if (isNewVisit) {
     uvid = 'v' + crypto.randomUUID().replace(/-/g, '').slice(0, 16);
-    // 终身唯一（近似）
     const uvKey = 'uv:' + uvid;
     if (!(await env.apisKV.get(uvKey))) {
       total.uv = (total.uv || 0) + 1;
       await env.apisKV.put(uvKey, '1', { expirationTtl: COUNTER_UV_TTL });
     }
-    // 当日唯一
     const dayUvKey = 'uvd:' + date + ':' + uvid;
     if (!(await env.apisKV.get(dayUvKey))) {
       today.uv = (today.uv || 0) + 1;
@@ -120,7 +122,6 @@ async function handleCounter(request, env) {
   ]);
 
   const res = json({ ok: true, total, today, visitor: uvid });
-  // 为新(无 cookie)访客种下 cookie，之后可累计 UV
   if (isNewVisit) {
     res.headers.append('Set-Cookie',
       `uvid=${uvid}; Path=/; Max-Age=${COUNTER_UV_TTL}; SameSite=Lax; HttpOnly`);
@@ -128,8 +129,7 @@ async function handleCounter(request, env) {
   return res;
 }
 
-/* ---------- 简单速率限制（基于 KV 的每 IP 滑动窗口） ----------
-   注：KV expirationTtl 最小为 60s，窗口 TTL 一律取 Math.max(60, ttl+60)。 */
+/* ---------- 简单速率限制（基于 KV 的每 IP 滑动窗口） ---------- */
 async function allowRequest(env, prefix, ip, maxReq, windowSec) {
   const key = prefix + ip;
   const now = Date.now();
@@ -147,10 +147,10 @@ async function allowRequest(env, prefix, ip, maxReq, windowSec) {
 async function handleHealth(request, env) {
   const url = new URL(request.url);
   const target = safeUrl(url.searchParams.get('url') || '');
-  if (!target) return error('无效或非法的探测地址', 400);
+  if (!target) return error('Invalid or disallowed probe URL', 400);
 
   if (!(await allowRequest(env, 'h:', getIp(request), 3, 10))) {
-    return error('探测过于频繁，请稍后再试', 429);
+    return error('Too many requests, slow down', 429);
   }
 
   const start = Date.now();
@@ -177,34 +177,33 @@ async function handleHealth(request, env) {
 
 /* ---------- Playground 代理 ---------- */
 async function handlePlayground(request, env) {
-  if (request.method !== 'POST') return error('仅支持 POST', 405);
+  if (request.method !== 'POST') return error('Only POST is supported', 405);
   if (!(await allowRequest(env, 'pg:', getIp(request), 10, 10))) {
-    return error('请求过于频繁，请稍后再试', 429);
+    return error('Too many requests, slow down', 429);
   }
 
   let payload;
   try {
     payload = await request.json();
   } catch (e) {
-    return error('请求体必须是合法 JSON', 400);
+    return error('Body must be valid JSON', 400);
   }
   const method = String(payload.method || 'GET').toUpperCase();
   if (!['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'].includes(method)) {
-    return error('不支持的请求方法', 400);
+    return error('Unsupported method', 400);
   }
   const url = safeUrl(payload.url);
-  if (!url) return error('无效或非法的目标地址', 400);
+  if (!url) return error('Invalid or disallowed target URL', 400);
 
   const headers = {};
   let body = null;
   const cType = String(payload.contentType || 'application/json');
   if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
     const rawBody = payload.body != null ? String(payload.body) : '';
-    if (new Blob([rawBody]).size > MAX_BODY_BYTES) return error('请求体过大', 413);
+    if (new Blob([rawBody]).size > MAX_BODY_BYTES) return error('Request body too large', 413);
     if (rawBody) { body = rawBody; headers['content-type'] = cType; }
   }
 
-  // 只透传安全的自定义头，禁止改写 Host / 内容长度等
   if (Array.isArray(payload.headers)) {
     for (const h of payload.headers) {
       if (!h || !h.key) continue;
@@ -243,9 +242,9 @@ async function handlePlayground(request, env) {
 
 /* ---------- 用户提交 ---------- */
 async function handleSubmit(request, env) {
-  if (request.method !== 'POST') return error('仅支持 POST', 405);
+  if (request.method !== 'POST') return error('Only POST is supported', 405);
   if (!(await allowRequest(env, 'sub:', getIp(request), 2, 60))) {
-    return error('提交过于频繁，请稍后再试', 429);
+    return error('Too many submissions, slow down', 429);
   }
 
   const ctype = String(request.headers.get('content-type') || '').toLowerCase();
@@ -272,13 +271,11 @@ async function handleSubmit(request, env) {
   const source = 'community';
   const email = pick('email') || '';
 
-  if (!name || !link) return error('名称和 URL 为必填项', 400);
+  if (!name || !link) return error('Name and URL are required', 400);
   const target = safeUrl(link);
-  if (!target) return error('URL 无效或包含禁止访问的地址', 400);
+  if (!target) return error('Invalid or disallowed URL', 400);
 
-  const listKey = 'submit:pending';
-  const list = (await env.apisKV.get(listKey, 'json')) || [];
-  // 去重：按 URL 去重
+  const list = (await env.apisKV.get(PENDING_KEY, 'json')) || [];
   const exists = list.some((it) => String(it.url).toLowerCase() === target.toString().toLowerCase());
   if (!exists) {
     list.push({
@@ -293,9 +290,90 @@ async function handleSubmit(request, env) {
       email,
       submittedAt: new Date().toISOString(),
     });
-    await env.apisKV.put(listKey, JSON.stringify(list));
+    await env.apisKV.put(PENDING_KEY, JSON.stringify(list));
   }
   return json({ ok: true, duplicate: exists, id: Date.now() });
+}
+
+/* ============================================================
+   管理后台（仅管理员）
+   ============================================================ */
+
+/** 校验当前请求是否持有有效管理 session（读 HttpOnly cookie -> KV） */
+async function requireAdmin(request, env) {
+  const token = cookieHeader(request, 'apis_admin');
+  if (!token) return false;
+  const rec = await env.apisKV.get('adm:' + token, 'json');
+  if (!rec) return false;
+  // ttl 已在 KV 层自动过期，这里再兜底判断
+  if (rec.exp < Date.now()) { await env.apisKV.delete('adm:' + token); return false; }
+  return true;
+}
+
+async function handleAdminLogin(request, env) {
+  if (request.method !== 'POST') return error('Only POST is supported', 405);
+  if (!(await allowRequest(env, 'al:', getIp(request), 5, 60))) {
+    return error('Too many attempts, slow down', 429);
+  }
+  const secret = String(env.ADMIN_PASSWORD || '');
+  let body;
+  try { body = await request.json(); } catch (e) { return error('Body must be valid JSON', 400); }
+  if (!secret) return error('Admin password not configured', 500);
+  if (String(body.password || '') !== secret) return error('Wrong password', 401);
+
+  const token = crypto.randomUUID().replace(/-/g, '');
+  const exp = Date.now() + SESSION_TTL * 1000;
+  await env.apisKV.put('adm:' + token, JSON.stringify({ exp }), { expirationTtl: SESSION_TTL });
+
+  const res = json({ ok: true });
+  res.headers.append('Set-Cookie',
+    `apis_admin=${token}; Path=/; Max-Age=${SESSION_TTL}; SameSite=Lax; HttpOnly`);
+  return res;
+}
+
+async function handleAdminPending(request, env) {
+  if (request.method !== 'GET') return error('Only GET is supported', 405);
+  if (!(await requireAdmin(request, env))) return error('Unauthorized', 401);
+  const list = (await env.apisKV.get(PENDING_KEY, 'json')) || [];
+  return json({ ok: true, items: list });
+}
+
+async function handleAdminReview(request, env) {
+  if (request.method !== 'POST') return error('Only POST is supported', 405);
+  if (!(await requireAdmin(request, env))) return error('Unauthorized', 401);
+
+  let body;
+  try { body = await request.json(); } catch (e) { return error('Body must be valid JSON', 400); }
+  const action = String(body.action || '');
+  const index = Number(body.index);
+  const idle = Number.isInteger(index) && index >= 0;
+
+  const list = (await env.apisKV.get(PENDING_KEY, 'json')) || [];
+  if (idle && index >= list.length) return error('Item not found', 404);
+  const item = idle ? list.splice(index, 1)[0] : null;
+
+  if (action === 'approve' && item) {
+    item.approvedAt = new Date().toISOString();
+    const approved = (await env.apisKV.get(APPROVED_KEY, 'json')) || [];
+    // 按 URL 去重，避免重复入库
+    if (!approved.some((it) => String(it.url).toLowerCase() === String(item.url).toLowerCase())) {
+      approved.unshift(item);
+    }
+    await env.apisKV.put(APPROVED_KEY, JSON.stringify(approved));
+  } else if (action === 'reject' || action === 'delete') {
+    // 丢弃该条（不入库）
+  } else {
+    return error('Invalid action', 400);
+  }
+
+  if (idle) await env.apisKV.put(PENDING_KEY, JSON.stringify(list));
+  return json({ ok: true, remaining: list.length });
+}
+
+/** 公开只读：返回已审核通过的社区 API（限 100 条） */
+async function handleCommunity(request, env) {
+  const list = (await env.apisKV.get(APPROVED_KEY, 'json')) || [];
+  return json({ ok: true, items: list.slice(0, 100) });
 }
 
 /* ---------- 路由 ---------- */
@@ -313,11 +391,14 @@ export default {
       if (path === '/api/health') return await handleHealth(request, env);
       if (path === '/api/playground') return await handlePlayground(request, env);
       if (path === '/api/submit') return await handleSubmit(request, env);
+      if (path === '/api/community') return await handleCommunity(request, env);
+      if (path === '/api/admin/login') return await handleAdminLogin(request, env);
+      if (path === '/api/admin/pending') return await handleAdminPending(request, env);
+      if (path === '/api/admin/review') return await handleAdminReview(request, env);
     } catch (e) {
-      return error('服务器内部错误: ' + String(e.message || e), 500);
+      return error('Internal error: ' + String(e.message || e), 500);
     }
 
-    // 其余交给静态资源（SPA 回退启用）
     return env.ASSETS.fetch(request);
   },
 };

@@ -307,3 +307,53 @@ select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .toast.success { background: #1a7f37; }
 .toast.error { background: #cf222e; }
+
+/* ---------- 语言选择器 ---------- */
+.lang-select {
+  font-size: 13px; font-family: inherit; color: var(--text);
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px;
+  padding: 4px 8px; cursor: pointer; max-width: 150px;
+}
+.lang-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--focus); }
+
+/* ---------- 社区已审 API ---------- */
+.community-section { padding: 20px 0 6px; border-top: 1px solid var(--border); margin-top: 26px; }
+.community-title { font-size: 18px; margin-bottom: 4px; }
+.community-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; }
+.community-section .card { cursor: pointer; }
+
+/* ---------- 管理后台（#admin，仅管理员可见） ---------- */
+.admin { padding: 28px 0 40px; }
+.admin-card { max-width: 820px; margin: 0 auto; }
+.admin-loading { padding: 40px; text-align: center; color: var(--text-muted); }
+.admin-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.admin-title { font-size: 20px; }
+.admin-back {
+  font-size: 12px; color: var(--text-muted); background: none; border: 1px solid var(--border);
+  border-radius: 6px; padding: 5px 10px; cursor: pointer; font-family: inherit;
+}
+.admin-back:hover { background: var(--btn-hover); border-color: var(--border-strong); }
+.admin-form { display: flex; gap: 8px; margin-top: 16px; max-width: 360px; }
+.admin-input {
+  flex: 1 1 auto; font-size: 13px; font-family: inherit; color: var(--text);
+  background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px;
+}
+.admin-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--focus); }
+.admin-error { color: var(--bad); font-size: 13px; margin-top: 10px; }
+.admin-sub { color: var(--text-muted); font-size: 13px; margin: 14px 0 10px; }
+.admin-empty { color: var(--text-muted); font-size: 13px; padding: 16px 0; }
+.admin-pending-list { display: flex; flex-direction: column; gap: 12px; }
+.admin-card-item {
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;
+}
+.admin-item-info { display: flex; flex-direction: column; gap: 6px; }
+.admin-item-name { font-size: 15px; font-weight: 600; }
+.admin-item-desc { font-size: 13px; color: var(--text-muted); }
+.admin-item-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+.admin-item-link { font-size: 12px; word-break: break-all; }
+.admin-item-actions { display: flex; gap: 8px; }
+.btn-warn { color: #fff; background: #9a6700; border-color: #9a6700; }
+.btn-warn:hover { background: #9a6700; filter: brightness(1.1); }
+[data-theme="dark"] .btn-warn { background: #d29922; border-color: #d29922; color: #1f2328; }
+@media (max-width: 520px) { .admin-form { max-width: 100%; flex-direction: column; } }

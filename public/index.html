@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="light">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>APIS SendAFun — 全球免费公共 API 索引与在线调试平台</title>
-  <meta name="description" content="搜索、筛选并在线调试 1,600+ 免费公共 API。支持健康检测、在线 Playground、多语言代码生成，数据来自 public-apis（MIT License），每日自动更新。">
+  <title data-i18n="meta_title">APIS SendAFun — Free Public API Index & Playground</title>
+  <meta name="description" data-i18n-meta="meta_desc" content="Search, filter and test 1,600+ free public APIs online with health checks, a built-in playground and multi-language code snippets. Data from public-apis (MIT), updated daily.">
   <meta name="keywords" content="free api, public api, api index, api playground, 免费接口, 公共API, API目录, API在线调试">
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="assets/app.css">
@@ -17,7 +17,7 @@
     "alternateName": "apis.sendafun.com",
     "url": "https://apis.sendafun.com/",
     "description": "Search, filter and test free public APIs online with health checks and a built-in playground.",
-    "inLanguage": "zh-CN",
+    "inLanguage": "en",
     "potentialAction": {
       "@type": "SearchAction",
       "target": "https://apis.sendafun.com/?q={search_term_string}",
@@ -32,81 +32,93 @@
     <div class="container header-inner">
       <a class="brand" href="./">apis-sendafun</a>
       <nav class="header-nav">
-        <a class="header-link" href="#" data-view="home">首页</a>
-        <a class="header-link" href="#" data-open="submit">提交 API</a>
-        <a class="header-link" href="#about" data-open="about">关于</a>
+        <a class="header-link" href="#" data-view="home" data-i18n="nav_home">Home</a>
+        <a class="header-link" href="#" data-open="submit" data-i18n="nav_submit">Submit API</a>
+        <a class="header-link" href="#about" data-open="about" data-i18n="nav_about">About</a>
         <a class="header-link" href="https://github.com/yusheng-zhang-star/apis-sendafun" target="_blank" rel="noopener noreferrer">GitHub</a>
-        <button id="themeToggle" class="btn-theme" type="button" aria-label="切换明暗主题">暗色</button>
+        <select id="langSelect" class="lang-select" aria-label="Language">
+          <option value="en">English</option>
+          <option value="zh">简体中文</option>
+          <option value="zh-Hant">繁體中文</option>
+        </select>
+        <button id="themeToggle" class="btn-theme" type="button" data-i18n="theme_dark">Dark</button>
       </nav>
     </div>
   </header>
 
   <main class="container">
 
-    <!-- 首页激活 -->
+    <!-- Home view -->
     <section id="view-home">
-      <!-- 概览看板 -->
       <section class="hero">
         <div class="hero-txt">
-          <h1>全球免费公共 API 索引与调试平台</h1>
-          <p>搜索、筛选、检测并在线调试 <strong id="statTotal">…</strong> 个免费公共 API。每天自动同步更新，即开即用。</p>
+          <h1 data-i18n="hero_title">Free Public API Index & Playground</h1>
+          <p><span data-i18n="hero_sub1">Search, filter, check health and test</span> <strong id="statTotal">…</strong> <span data-i18n="hero_sub2">free public APIs online. Auto-synced daily.</span></p>
         </div>
         <div class="stats">
-          <div class="stat"><span id="statApis">…</span><label>API 总数</label></div>
-          <div class="stat"><span id="statCats">…</span><label>分类</label></div>
-          <div class="stat"><span id="statPv">…</span><label>累计访问</label></div>
-          <div class="stat"><span id="statToday">…</span><label>今日访问</label></div>
+          <div class="stat"><span id="statApis">…</span><label data-i18n="stat_apis">APIs</label></div>
+          <div class="stat"><span id="statCats">…</span><label data-i18n="stat_cats">Categories</label></div>
+          <div class="stat"><span id="statPv">…</span><label data-i18n="stat_pv">Total Visits</label></div>
+          <div class="stat"><span id="statToday">…</span><label data-i18n="stat_today">Today</label></div>
         </div>
       </section>
 
-      <section class="toolbar" aria-label="搜索与筛选">
+      <section class="toolbar" aria-label="Search and filter">
         <div class="search-row">
-          <input id="searchInput" type="search" placeholder="搜索 API 名称、描述或分类…" autocomplete="off" spellcheck="false" aria-label="搜索 API">
+          <input id="searchInput" type="search" data-i18n-ph="search_ph" placeholder="Search API name, description or category…" autocomplete="off" spellcheck="false" aria-label="Search API">
         </div>
         <div class="filter-row">
-          <label class="filter">分类
-            <select id="filterCategory"><option value="all">全部</option></select>
+          <label class="filter"><span data-i18n="f_category">Category</span>
+            <select id="filterCategory"><option value="all" data-i18n="f_all">All</option></select>
           </label>
-          <label class="filter">鉴权
+          <label class="filter"><span data-i18n="f_auth">Auth</span>
             <select id="filterAuth">
-              <option value="all">全部</option>
-              <option value="yes">需要</option>
-              <option value="no">无需</option>
+              <option value="all" data-i18n="f_all">All</option>
+              <option value="yes" data-i18n="f_need">Required</option>
+              <option value="no" data-i18n="f_none">No auth</option>
             </select>
           </label>
-          <label class="filter">HTTPS
+          <label class="filter"><span data-i18n="f_https">HTTPS</span>
             <select id="filterHttps">
-              <option value="all">全部</option>
-              <option value="yes">是</option>
-              <option value="no">否</option>
+              <option value="all" data-i18n="f_all">All</option>
+              <option value="yes" data-i18n="f_yes">Yes</option>
+              <option value="no" data-i18n="f_no">No</option>
             </select>
           </label>
-          <label class="filter">CORS
+          <label class="filter"><span data-i18n="f_cors">CORS</span>
             <select id="filterCors">
-              <option value="all">全部</option>
-              <option value="yes">支持</option>
-              <option value="no">不支持</option>
-              <option value="unknown">未知</option>
+              <option value="all" data-i18n="f_all">All</option>
+              <option value="yes" data-i18n="f_supported">Supported</option>
+              <option value="no" data-i18n="f_unsupported">Not supported</option>
+              <option value="unknown" data-i18n="f_unknown">Unknown</option>
             </select>
           </label>
         </div>
         <div class="result-meta">
-          <span id="resultCount">加载中…</span>
+          <span id="resultCount" data-i18n="loading">Loading…</span>
           <span id="updatedAt" class="meta-muted"></span>
         </div>
         <div class="category-chips" id="categoryChips"></div>
       </section>
 
       <section id="grid" class="grid" aria-live="polite"></section>
-      <div id="empty" class="empty" hidden>没有符合筛选条件的 API，可尝试清空搜索或调整筛选条件。</div>
-      <nav id="pagination" class="pagination" aria-label="分页"></nav>
+      <div id="empty" class="empty" hidden data-i18n="empty_msg">No APIs match the current filters. Try clearing the search or adjusting filters.</div>
+      <nav id="pagination" class="pagination" aria-label="Pagination"></nav>
 
       <section id="about" class="about" hidden>
-        <h2>关于本项目</h2>
-        <p>apis.sendafun.com 是一个开源的免费公共 API 索引平台，面向开发者提供搜索、筛选、健康检测、在线 Playground 调试与多语言代码生成能力。</p>
-        <p>数据集来源：<a href="https://github.com/public-apis/public-apis" target="_blank" rel="noopener noreferrer">public-apis</a>（MIT License），通过 GitHub Actions 每日自动同步；同时欢迎开发者通过“提交 API”贡献新接口。</p>
-        <p>数据许可：本项目代码 MIT License；API 数据集遵循 public-apis 的 MIT License。</p>
+        <h2 data-i18n="about_title">About this project</h2>
+        <p data-i18n="about_p1">apis.sendafun.com is an open-source index of free public APIs for developers — search, filter, health-check, online playground and multi-language code generation.</p>
+        <p><span data-i18n="about_p2">Dataset source:</span> <a href="https://github.com/public-apis/public-apis" target="_blank" rel="noopener noreferrer">public-apis</a> (MIT License), auto-synced daily via GitHub Actions; you are welcome to contribute new APIs via “Submit API”.</p>
+        <p data-i18n="about_p3">License: this project is MIT; the API dataset follows the MIT License of public-apis.</p>
       </section>
+    </section>
+
+    <!-- 已审批社区 API 区块 -->
+    <section id="community" class="community-section" hidden>
+      <h2 class="community-title" data-i18n="community_title">Community APIs</h2>
+      <p class="community-sub" data-i18n="community_sub">Reviewed and approved community submissions.</p>
+      <div id="communityGrid" class="grid"></div>
+      <div id="communityEmpty" class="empty" data-i18n="community_empty" hidden>No approved community APIs yet.</div>
     </section>
   </main>
 
@@ -117,14 +129,13 @@
         <a href="https://sendafun.com" target="_blank" rel="noopener noreferrer">sendafun.com</a>
         <a href="https://smartimgkit.com/" target="_blank" rel="noopener noreferrer">smartimgkit.com</a>
       </div>
-      <p class="footer-credit">
-        开源项目 · API 数据集来自
-        <a href="https://github.com/public-apis/public-apis" target="_blank" rel="noopener noreferrer">public-apis</a>，MIT License。
+      <p class="footer-credit"><span data-i18n="footer_open">Open-source project · API dataset from</span>
+        <a href="https://github.com/public-apis/public-apis" target="_blank" rel="noopener noreferrer">public-apis</a>, MIT License.
       </p>
-      <p class="footer-affiliate">开发者必备工具：<span id="affiliateLinks"></span></p>
+      <p class="footer-affiliate"><span data-i18n="footer_deps">Developer tools:</span> <span id="affiliateLinks"></span></p>
       <p class="footer-note">
-        <span id="visitorCount" class="visitor-count placeholder">加载访问量…</span>
-        · apis-sendafun · MIT License · 无需注册
+        <span id="visitorCount" class="visitor-count placeholder">…</span>
+        · apis-sendafun · MIT License · <span data-i18n="footer_noreg">No sign-up</span>
       </p>
     </div>
   </footer>
@@ -133,7 +144,7 @@
   <div id="detailModal" class="modal" hidden>
     <div class="modal-backdrop" data-close="detail"></div>
     <div class="modal-panel modal-lg" role="dialog" aria-modal="true">
-      <button class="modal-close" data-close="detail" aria-label="关闭">×</button>
+      <button class="modal-close" data-close="detail" data-i18n-title="close" aria-label="Close">×</button>
       <div id="detailBody"></div>
     </div>
   </div>
@@ -142,22 +153,22 @@
   <div id="submitModal" class="modal" hidden>
     <div class="modal-backdrop" data-close="submit"></div>
     <div class="modal-panel" role="dialog" aria-modal="true">
-      <button class="modal-close" data-close="submit" aria-label="关闭">×</button>
-      <h2 class="modal-title">提交新的免费 API</h2>
+      <button class="modal-close" data-close="submit" data-i18n-title="close" aria-label="Close">×</button>
+      <h2 class="modal-title" data-i18n="submit_title">Submit a new free API</h2>
       <form id="submitForm" class="form">
-        <label>API 名称 *<input name="name" required placeholder="例如：OpenWeather" maxlength="120"></label>
-        <label>官方 / 文档链接 *<input name="url" required type="url" placeholder="https://…" maxlength="500"></label>
-        <label>简要描述<textarea name="description" rows="3" placeholder="用一句话描述这个 API 的用途" maxlength="500"></textarea></label>
+        <label><span data-i18n="submit_name">API name</span> *<input name="name" required data-i18n-ph="submit_ph_name" placeholder="e.g. OpenWeather" maxlength="120"></label>
+        <label><span data-i18n="submit_url">Official / docs URL</span> *<input name="url" required type="url" data-i18n-ph="submit_ph_url" placeholder="https://…" maxlength="500"></label>
+        <label><span data-i18n="submit_desc">Short description</span><textarea name="description" rows="3" data-i18n-ph="submit_ph_desc" placeholder="One sentence describing what this API does" maxlength="500"></textarea></label>
         <div class="form-row">
-          <label>分类<input name="category" list="catlist" placeholder="例如：Weather" maxlength="80"></label>
+          <label><span data-i18n="submit_cat">Category</span><input name="category" list="catlist" data-i18n-ph="submit_ph_cat" placeholder="e.g. Weather" maxlength="80"></label>
           <datalist id="catlist"></datalist>
-          <label>鉴权方式<select name="auth"><option>Unknown</option><option>No</option><option>apiKey</option><option>OAuth</option><option>X-Mashape-Key</option><option>User-Agent</option></select></label>
-          <label>CORS<select name="cors"><option>Unknown</option><option>yes</option><option>no</option></select></label>
+          <label><span data-i18n="f_auth">Auth</span><select name="auth"><option>Unknown</option><option>No</option><option>apiKey</option><option>OAuth</option><option>X-Mashape-Key</option><option>User-Agent</option></select></label>
+          <label><span data-i18n="f_cors">CORS</span><select name="cors"><option>Unknown</option><option>yes</option><option>no</option></select></label>
         </div>
-        <label>联系邮箱（可选）<input name="email" type="email" placeholder="用于接收审核结果" maxlength="120"></label>
+        <label><span data-i18n="submit_email">Contact email (optional)</span><input name="email" type="email" data-i18n-ph="submit_ph_email" placeholder="to receive review results" maxlength="120"></label>
         <div class="form-actions">
-          <button class="btn btn-primary" type="submit">提交</button>
-          <button class="btn" type="button" data-close="submit">取消</button>
+          <button class="btn btn-primary" type="submit" data-i18n="submit_btn">Submit</button>
+          <button class="btn" type="button" data-close="submit" data-i18n="cancel">Cancel</button>
         </div>
       </form>
     </div>
