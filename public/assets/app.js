@@ -461,11 +461,11 @@ function initVisitorCount() {
     if ((uv.textContent || '').trim()) {
       wrap.style.display = '';
       clearInterval(timer);
-    } else if (tries >= 40) {
-      // 约 4s 后仍未加载完成则不显示，避免页脚出现空占位
+    } else if (tries >= 150) {
+      // 约 30s 后仍未加载完成才隐藏，避免不蒜子加载慢时数字一闪而过或始终不见
       clearInterval(timer);
     }
-  }, 100);
+  }, 200);
 }
 
 /* ---------- Boot ---------- */
