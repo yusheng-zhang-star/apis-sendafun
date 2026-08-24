@@ -1,6 +1,6 @@
 /* ============================================================
    apis-sendafun — 公共 API 索引 + 在线调试 SPA
-   功能：多语言(en/zh/zh-Hant)、搜索/筛选/分页、详情(健康探测/
+   功能：多语言(8种)、搜索/筛选/分页、详情(健康探测/
         Playground/代码生成)、提交 API、社区已审 API、
         自托管访客统计、隐藏管理后台(#admin)、明暗主题
    ============================================================ */
@@ -13,161 +13,22 @@ var SEARCH_DEBOUNCE_MS = 200;
 
 /* ============================================================
    多语言 i18n
+   说明：字典在 assets/i18n.js（公用共享），此处只做查询与回退
    ============================================================ */
-var I18N = {
-  en: {
-    meta_title: 'APIS SendAFun — Free Public API Index & Playground',
-    meta_desc: 'Search, filter and test 1,600+ free public APIs online with health checks, a built-in playground and multi-language code snippets. Data from public-apis (MIT), updated daily.',
-    theme_dark: 'Dark', theme_light: 'Light', close: 'Close',
-    nav_home: 'Home', nav_submit: 'Submit API', nav_about: 'About',
-    hero_title: 'Free Public API Index & Playground',
-    hero_sub1: 'Search, filter, check health and test', hero_sub2: 'free public APIs online. Auto-synced daily.',
-    stat_apis: 'APIs', stat_cats: 'Categories', stat_pv: 'Total Visits', stat_today: 'Today',
-    search_ph: 'Search API name, description or category…',
-    f_all: 'All', f_category: 'Category', f_auth: 'Auth', f_https: 'HTTPS', f_cors: 'CORS',
-    f_need: 'Required', f_none: 'No auth', f_yes: 'Yes', f_no: 'No',
-    f_supported: 'Supported', f_unsupported: 'Not supported', f_unknown: 'Unknown',
-    loading: 'Loading…', result_count: '{n} APIs', data_updated: 'Updated {d}',
-    empty_msg: 'No APIs match the current filters. Try clearing the search or adjusting filters.',
-    load_error: 'Failed to load dataset, please retry later.',
-    about_title: 'About this project',
-    about_p1: 'apis.sendafun.com is an open-source index of free public APIs for developers — search, filter, health-check, online playground and multi-language code generation.',
-    about_p2: 'Dataset source:', about_p3: 'License: this project is MIT; the API dataset follows the MIT License of public-apis.',
-    community_title: 'Community APIs', community_sub: 'Reviewed and approved community submissions.', community_empty: 'No approved community APIs yet.',
-    footer_open: 'Open-source project · API dataset from', footer_deps: 'Developer tools:', footer_noreg: 'No sign-up',
-    submit_title: 'Submit a new free API',
-    submit_name: 'API name', submit_url: 'Official / docs URL', submit_desc: 'Short description',
-    submit_cat: 'Category', submit_email: 'Contact email (optional)',
-    submit_ph_name: 'e.g. OpenWeather', submit_ph_url: 'https://…', submit_ph_desc: 'One sentence describing what this API does',
-    submit_ph_cat: 'e.g. Weather', submit_ph_email: 'to receive review results',
-    submit_btn: 'Submit', cancel: 'Cancel',
-    badge_noauth: 'No auth', badge_nohttps: 'No HTTPS', tag_community: 'Community',
-    btn_view: 'View / Test', btn_copy_curl: 'Copy cURL', btn_copy: 'Copy',
-    prev: 'Prev', next: 'Next',
-    detail_playground: '🔧 Online Playground', detail_code: '📋 Code Snippets', detail_info: 'ℹ️ Basic Info',
-    detail_official: 'Official link', detail_noauth: 'No auth required',
-    health_checking: 'Checking…', health_retry: 'Re-check', health_fail: 'Check failed',
-    health_alive: '🟢 Online · {ms}ms · {t}', health_dead: '🔴 Unreachable',
-    pg_headers: 'Headers', pg_add_header: '+ Add header', pg_body: 'Body (JSON)',
-    pg_send: 'Send', pg_sending: 'Sending…', pg_header: 'Header', pg_value: 'Value',
-    pg_status: 'Status', pg_size: 'Size', pg_empty: '(empty response)', pg_proxy: 'Proxy error', pg_reqfail: 'Request failed',
-    code_label: 'Multi-language', code_copy: 'Copy', code_copied: 'Copied to clipboard', code_failcopy: 'Copy failed', code_gen_fail: 'Unable to generate',
-    toast_submit_ok: 'Submitted! It will be reviewed by the moderation queue.', toast_submit_dup: 'This API is already in the queue.', toast_submit_fail: 'Submission failed',
-    toast_copy_curl: 'cURL copied', visitor_loading: 'Loading visits…',
-    visitor_fmt: '{pv} visits · {today} today', visitor_uv: ' · {n} people',
-    aff_vps: 'Cloud hosting', aff_books: 'Programming books', aff_keyboard: 'Mechanical keyboard',
-    admin_title: 'Admin — API Review',
-    admin_login_label: 'Administrator login', admin_pass_ph: 'Password', admin_login: 'Login',
-    admin_wrong: 'Wrong password', admin_pending_title: 'Pending submissions', admin_pending_empty: 'No pending submissions.',
-    admin_approved_label: 'Approved', admin_btn_approve: '✅ Approve', admin_btn_reject: '❌ Reject', admin_btn_delete: '🗑 Delete',
-    admin_logout: 'Logout', admin_back: 'Back to site', admin_view: 'View',
-    admin_source: 'Source', admin_submitted: 'Submitted', admin_category: 'Category'
-  },
-
-  zh: {
-    meta_title: 'APIS SendAFun — 全球免费公共 API 索引与在线调试平台',
-    meta_desc: '在线搜索、筛选、检测并调试 1,600+ 个免费公共 API，支持健康检测、在线 Playground 与多语言代码生成。数据来自 public-apis（MIT），每日自动更新。',
-    theme_dark: '暗色', theme_light: '浅色', close: '关闭',
-    nav_home: '首页', nav_submit: '提交 API', nav_about: '关于',
-    hero_title: '全球免费公共 API 索引与调试平台',
-    hero_sub1: '搜索、筛选、检测并在线调试', hero_sub2: '个免费公共 API，每日自动同步更新。',
-    stat_apis: 'API 总数', stat_cats: '分类', stat_pv: '累计访问', stat_today: '今日访问',
-    search_ph: '搜索 API 名称、描述或分类…',
-    f_all: '全部', f_category: '分类', f_auth: '鉴权', f_https: 'HTTPS', f_cors: 'CORS',
-    f_need: '需要', f_none: '无需', f_yes: '是', f_no: '否',
-    f_supported: '支持', f_unsupported: '不支持', f_unknown: '未知',
-    loading: '加载中…', result_count: '{n} 个 API', data_updated: '数据更新于 {d}',
-    empty_msg: '没有符合筛选条件的 API，可尝试清空搜索或调整筛选条件。',
-    load_error: '数据集加载失败，请稍后重试。',
-    about_title: '关于本项目',
-    about_p1: 'apis.sendafun.com 是一个开源的免费公共 API 索引平台，面向开发者提供搜索、筛选、健康检测、在线 Playground 调试与多语言代码生成能力。',
-    about_p2: '数据集来源：', about_p3: '数据许可：本项目代码 MIT License；API 数据集遵循 public-apis 的 MIT License。',
-    community_title: '社区 API', community_sub: '经人工审核通过的社区提交接口。', community_empty: '暂无已审核通过的社区 API。',
-    footer_open: '开源项目 · API 数据集来自', footer_deps: '开发者必备工具：', footer_noreg: '无需注册',
-    submit_title: '提交新的免费 API',
-    submit_name: 'API 名称', submit_url: '官方 / 文档链接', submit_desc: '简要描述',
-    submit_cat: '分类', submit_email: '联系邮箱（可选）',
-    submit_ph_name: '例如：OpenWeather', submit_ph_url: 'https://…', submit_ph_desc: '用一句话描述这个 API 的用途',
-    submit_ph_cat: '例如：Weather', submit_ph_email: '用于接收审核结果',
-    submit_btn: '提交', cancel: '取消',
-    badge_noauth: '免鉴权', badge_nohttps: '无 HTTPS', tag_community: '社区',
-    btn_view: '查看 / 调试', btn_copy_curl: '复制 cURL', btn_copy: '复制',
-    prev: '上一页', next: '下一页',
-    detail_playground: '🔧 在线 Playground', detail_code: '📋 代码片段', detail_info: 'ℹ️ 基本信息',
-    detail_official: '官方链接', detail_noauth: '无需鉴权',
-    health_checking: '检测中…', health_retry: '重新检测', health_fail: '检测失败',
-    health_alive: '🟢 可用 · {ms}ms · {t}', health_dead: '🔴 不可达',
-    pg_headers: '请求头', pg_add_header: '+ 添加请求头', pg_body: 'Body (JSON)',
-    pg_send: '发送', pg_sending: '发送中…', pg_header: 'Header', pg_value: 'Value',
-    pg_status: '状态', pg_size: '大小', pg_empty: '（空响应）', pg_proxy: '代理错误', pg_reqfail: '请求失败',
-    code_label: '多语言代码', code_copy: '复制', code_copied: '已复制到剪贴板', code_failcopy: '复制失败', code_gen_fail: '无法生成',
-    toast_submit_ok: '提交成功，将进入人工审核队列', toast_submit_dup: '该 API 已在待审队列中，无需重复提交', toast_submit_fail: '提交失败',
-    toast_copy_curl: 'cURL 已复制', visitor_loading: '加载访问量…',
-    visitor_fmt: '{pv} 次访问 · {today} 今日', visitor_uv: ' · {n} 人',
-    aff_vps: '云主机', aff_books: '技术书籍', aff_keyboard: '机械键盘',
-    admin_title: '管理后台 — API 审核',
-    admin_login_label: '管理员登录', admin_pass_ph: '密码', admin_login: '登录',
-    admin_wrong: '密码错误', admin_pending_title: '待审核提交', admin_pending_empty: '暂无待审核提交。',
-    admin_approved_label: '已通过', admin_btn_approve: '✅ 通过', admin_btn_reject: '❌ 拒绝', admin_btn_delete: '🗑 删除',
-    admin_logout: '退出登录', admin_back: '返回网站', admin_view: '查看',
-    admin_source: '来源', admin_submitted: '提交时间', admin_category: '分类'
-  },
-
-  'zh-Hant': {
-    meta_title: 'APIS SendAFun — 全球免費公共 API 索引與線上調試平台',
-    meta_desc: '線上搜尋、篩選、檢測並調試 1,600+ 個免費公共 API，支援健康檢測、線上 Playground 與多語言程式碼產生。資料來自 public-apis（MIT），每日自動更新。',
-    theme_dark: '暗色', theme_light: '淺色', close: '關閉',
-    nav_home: '首頁', nav_submit: '提交 API', nav_about: '關於',
-    hero_title: '全球免費公共 API 索引與調試平台',
-    hero_sub1: '搜尋、篩選、檢測並線上調試', hero_sub2: '個免費公共 API，每日自動同步更新。',
-    stat_apis: 'API 總數', stat_cats: '分類', stat_pv: '累計訪問', stat_today: '今日訪問',
-    search_ph: '搜尋 API 名稱、描述或分類…',
-    f_all: '全部', f_category: '分類', f_auth: '鑑權', f_https: 'HTTPS', f_cors: 'CORS',
-    f_need: '需要', f_none: '無需', f_yes: '是', f_no: '否',
-    f_supported: '支援', f_unsupported: '不支援', f_unknown: '未知',
-    loading: '載入中…', result_count: '{n} 個 API', data_updated: '資料更新於 {d}',
-    empty_msg: '沒有符合篩選條件的 API，可嘗試清空搜尋或調整篩選條件。',
-    load_error: '資料集載入失敗，請稍後重試。',
-    about_title: '關於本專案',
-    about_p1: 'apis.sendafun.com 是一個開源的免費公共 API 索引平台，面向開發者提供搜尋、篩選、健康檢測、線上 Playground 調試與多語言程式碼產生能力。',
-    about_p2: '資料集來源：', about_p3: '資料許可：本專案程式碼 MIT License；API 資料集遵循 public-apis 的 MIT License。',
-    community_title: '社群 API', community_sub: '經人工審核通過的社群提交介面。', community_empty: '暫無已審核通過的社群 API。',
-    footer_open: '開源專案 · API 資料集來自', footer_deps: '開發者必備工具：', footer_noreg: '無需註冊',
-    submit_title: '提交新的免費 API',
-    submit_name: 'API 名稱', submit_url: '官方 / 文件連結', submit_desc: '簡要描述',
-    submit_cat: '分類', submit_email: '聯絡信箱（可選）',
-    submit_ph_name: '例如：OpenWeather', submit_ph_url: 'https://…', submit_ph_desc: '用一句話描述這個 API 的用途',
-    submit_ph_cat: '例如：Weather', submit_ph_email: '用於接收審核結果',
-    submit_btn: '提交', cancel: '取消',
-    badge_noauth: '免鑑權', badge_nohttps: '無 HTTPS', tag_community: '社群',
-    btn_view: '查看 / 調試', btn_copy_curl: '複製 cURL', btn_copy: '複製',
-    prev: '上一頁', next: '下一頁',
-    detail_playground: '🔧 線上 Playground', detail_code: '📋 程式碼片段', detail_info: 'ℹ️ 基本資訊',
-    detail_official: '官方連結', detail_noauth: '無需鑑權',
-    health_checking: '檢測中…', health_retry: '重新檢測', health_fail: '檢測失敗',
-    health_alive: '🟢 可用 · {ms}ms · {t}', health_dead: '🔴 不可達',
-    pg_headers: '請求頭', pg_add_header: '+ 新增請求頭', pg_body: 'Body (JSON)',
-    pg_send: '傳送', pg_sending: '傳送中…', pg_header: 'Header', pg_value: 'Value',
-    pg_status: '狀態', pg_size: '大小', pg_empty: '（空回應）', pg_proxy: '代理錯誤', pg_reqfail: '請求失敗',
-    code_label: '多語言程式碼', code_copy: '複製', code_copied: '已複製到剪貼簿', code_failcopy: '複製失敗', code_gen_fail: '無法產生',
-    toast_submit_ok: '提交成功，將進入人工審核佇列', toast_submit_dup: '該 API 已在待審佇列中，無需重複提交', toast_submit_fail: '提交失敗',
-    toast_copy_curl: 'cURL 已複製', visitor_loading: '載入訪問量…',
-    visitor_fmt: '{pv} 次訪問 · {today} 今日', visitor_uv: ' · {n} 人',
-    aff_vps: '雲主機', aff_books: '技術書籍', aff_keyboard: '機械鍵盤',
-    admin_title: '管理後台 — API 審核',
-    admin_login_label: '管理員登入', admin_pass_ph: '密碼', admin_login: '登入',
-    admin_wrong: '密碼錯誤', admin_pending_title: '待審核提交', admin_pending_empty: '暫無待審核提交。',
-    admin_approved_label: '已通過', admin_btn_approve: '✅ 通過', admin_btn_reject: '❌ 拒絕', admin_btn_delete: '🗑 刪除',
-    admin_logout: '登出', admin_back: '返回網站', admin_view: '查看',
-    admin_source: '來源', admin_submitted: '提交時間', admin_category: '分類'
-  }
-};
-
 var LOCALE = 'en';
-function localeTag() { return LOCALE === 'zh' ? 'zh-CN' : LOCALE === 'zh-Hant' ? 'zh-HK' : 'en-US'; }
+var SUPPORTED_LOCALES = ['en', 'zh', 'zh-Hant', 'hi', 'es', 'pt', 'fr', 'de'];
+var LOCALE_NAMES = {
+  en: 'English', zh: '简体中文', 'zh-Hant': '繁體中文',
+  hi: 'हिन्दी', es: 'Español', pt: 'Português', fr: 'Français', de: 'Deutsch'
+};
+function localeTag() {
+  const map = { en: 'en-US', zh: 'zh-CN', 'zh-Hant': 'zh-HK', hi: 'hi-IN', es: 'es-ES', pt: 'pt-BR', fr: 'fr-FR', de: 'de-DE' };
+  return map[LOCALE] || 'en-US';
+}
 function t(key, vars) {
-  const dict = I18N[LOCALE] || I18N.en;
-  let s = dict[key] !== undefined ? dict[key] : (I18N.en[key] !== undefined ? I18N.en[key] : key);
+  const ov = (window.I18N_OVERRIDES || {})[LOCALE] || {};
+  const base = window.I18N_BASE || {};
+  let s = ov[key] !== undefined ? ov[key] : (base[key] !== undefined ? base[key] : key);
   if (vars) { for (const k in vars) s = s.split('{' + k + '}').join(vars[k]); }
   return s;
 }
@@ -184,12 +45,21 @@ function applyI18n() {
 function initLocale() {
   let stored = null;
   try { stored = localStorage.getItem('apis-sendafun-lang'); } catch (e) {}
-  LOCALE = ['en', 'zh', 'zh-Hant'].indexOf(stored) > -1 ? stored : 'en';
+  LOCALE = SUPPORTED_LOCALES.indexOf(stored) > -1 ? stored : 'en';
   const sel = document.getElementById('langSelect');
-  if (sel) sel.value = LOCALE;
+  if (sel) {
+    sel.innerHTML = '';
+    SUPPORTED_LOCALES.forEach((l) => {
+      const o = document.createElement('option');
+      o.value = l;
+      o.textContent = LOCALE_NAMES[l] || l;
+      sel.appendChild(o);
+    });
+    sel.value = LOCALE;
+  }
 }
 function setLocale(l) {
-  if (['en', 'zh', 'zh-Hant'].indexOf(l) === -1) l = 'en';
+  if (SUPPORTED_LOCALES.indexOf(l) === -1) l = 'en';
   LOCALE = l;
   try { localStorage.setItem('apis-sendafun-lang', l); } catch (e) {}
   applyI18n();
@@ -546,7 +416,7 @@ function playgroundBox(api) {
       <label class="pg-hd-label" for="pgBody">${esc(t('pg_body'))}</label>
       <textarea id="pgBody" class="pg-body-input" rows="4" spellcheck="false" placeholder='{"key":"value"}'></textarea>
     </div>
-    <div class="pg-result" hidden>
+    <div id="pg-result" class="pg-result" hidden>
       <div class="pg-meta" id="pgMeta"></div>
       <pre id="pgOut" class="pg-out"></pre>
     </div>`;
