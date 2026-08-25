@@ -1,7 +1,9 @@
 # apis-sendafun
 
 面向程序员的**公开 API 检索工具**。基于 [public-apis](https://github.com/public-apis/public-apis) 公开数据集（MIT License），提供搜索、多条件组合筛选、一键复制链接 / cURL 片段等能力。纯前端 SPA，无需注册登录。
-
+- 🚀 在线地址：[https://apis.sendafun.com](https://apis.sendafun.com)
+- 📦 最新版本：[v0.1.0](https://github.com/yusheng‑zhang‑star/apis‑sendafun/releases/tag/v0.1.0)
+- 数据源：<https://github.com/public‑apis/public‑apis>（MIT License）
 - 在线地址：<https://apis.sendafun.com>
 - 数据源：<https://github.com/public-apis/public-apis>（MIT License）
 
