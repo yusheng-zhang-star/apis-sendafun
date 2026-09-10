@@ -133,7 +133,8 @@ function loadData() {
       state.categories = data.categories || [];
       const m = data.meta || {};
       const upd = document.getElementById('updatedAt');
-      if (m.updatedAt) { const d = new Date(m.updatedAt); upd.textContent = t('data_updated', { d: d.toLocaleDateString(localeTag()) }); }
+      const dateVal = m.healthCheckedAt || m.updatedAt;
+      if (dateVal) { const d = new Date(dateVal); upd.textContent = t('data_updated', { d: d.toLocaleDateString(localeTag()) }); }
       document.getElementById('statApis').textContent = fmtNum(state.all.length);
       document.getElementById('statTotal').textContent = fmtNum(state.all.length);
       document.getElementById('statCats').textContent = fmtNum(state.categories.length);
