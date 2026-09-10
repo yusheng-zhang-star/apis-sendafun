@@ -6,7 +6,8 @@
   "description": "Public API directory tool - search, filter and copy free public APIs. Dataset from public-apis (MIT).",
   "scripts": {
     "update:dataset": "node scripts/update-dataset.js",
-    "build:posts": "node scripts/build-posts-data.mjs"
+    "build:posts": "node scripts/build-posts-data.mjs",
+    "publish:post": "node scripts/publish-next-post.mjs"
   },
   "engines": {
     "node": ">=18"
