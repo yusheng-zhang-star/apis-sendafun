@@ -2,6 +2,7 @@
  * apis-sendafun — Cloudflare Worker 请求处理器
  *
  * 职责：
+ *   - /blog, /blog/:slug, /sitemap.xml, /robots.txt  博客 SSR + SEO
  *   - /api/counter  访客统计（自托管，彻底解决第三方统计不稳定问题）
  *   - /api/health   健康探测（详情页实时检测 API 可用性）
  *   - /api/playground  Playground 代理（绕过 CORS，含 SSRF 防护 / 超时 / 大小限制）
@@ -10,6 +11,8 @@
  *   - /api/admin/login|pending|review  管理后台（仅管理员，Secret 密码 + 24h session）
  *   - 其余路径      交由静态资源 (ASSETS) 渲染 SPA
  */
+
+import { handleBlogRoutes } from './blog.js';
 
 const COUNTER_UV_TTL = 365 * 24 * 60 * 60; // 秒
 const DAILY_UV_TTL = 3 * 24 * 60 * 60;
@@ -387,6 +390,10 @@ export default {
     }
 
     try {
+      // 博客 SSR + SEO（/blog, /blog/:slug, /sitemap.xml, /robots.txt）
+      const blogRes = await handleBlogRoutes(request);
+      if (blogRes) return blogRes;
+
       if (path === '/api/counter') return await handleCounter(request, env);
       if (path === '/api/health') return await handleHealth(request, env);
       if (path === '/api/playground') return await handlePlayground(request, env);

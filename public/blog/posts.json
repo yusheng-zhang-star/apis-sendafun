@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "what-is-a-public-api",
+    "title": "What Is a Public API? A Beginner's Guide to Free APIs",
+    "date": "2026-09-10",
+    "excerpt": "Learn what public APIs are, how they work, and why free public APIs are essential for developers building apps, prototypes, and side projects.",
+    "tags": ["API", "Beginner", "Developer"],
+    "author": "SendAFun"
+  },
+  {
+    "slug": "best-free-weather-apis-2026",
+    "title": "10 Best Free Weather APIs in 2026 (Tested & Compared)",
+    "date": "2026-09-08",
+    "excerpt": "We tested the top free weather APIs available in 2026 — compare features, rate limits, data accuracy, and code examples to find the right one for your project.",
+    "tags": ["Weather", "API", "Comparison"],
+    "author": "SendAFun"
+  },
+  {
+    "slug": "how-to-use-api-playground",
+    "title": "How to Test Any API Online Without Writing Code",
+    "date": "2026-09-05",
+    "excerpt": "A step-by-step guide to using the built-in API playground on apis.sendafun.com to test REST endpoints, inspect responses, and generate code snippets instantly.",
+    "tags": ["Tutorial", "Playground", "REST"],
+    "author": "SendAFun"
+  }
+]

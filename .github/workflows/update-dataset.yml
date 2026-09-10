@@ -35,6 +35,9 @@ jobs:
         with:
           node-version: 20
 
+      - name: Build blog posts data (merge posts.json + *.md)
+        run: npm run build:posts
+
       - name: Sync dataset from public-apis
         run: node scripts/update-dataset.js
 

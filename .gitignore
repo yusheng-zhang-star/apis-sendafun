@@ -3,3 +3,4 @@ node_modules/
 *.log
 upstream-readme.md
 .wrangler/
+src/posts-data.json
