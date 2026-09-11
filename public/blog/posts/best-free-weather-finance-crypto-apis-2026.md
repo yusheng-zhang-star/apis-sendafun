@@ -1,6 +1,3 @@
----
-{"title": "Best Free Weather, Finance & Crypto APIs (All Working Right Now)", "excerpt": "The best free APIs for weather, finance, and crypto in 2026 — all verified working with daily health checks. Test any API in your browser.", "tags": ["Weather", "Finance", "Crypto"], "author": "SendAFun"}
----
 
 # Best Free Weather, Finance & Crypto APIs (All Working Right Now)
 
