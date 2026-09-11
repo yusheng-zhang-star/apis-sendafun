@@ -52,6 +52,7 @@ jobs:
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             git commit -m "chore: sync API dataset $(date -u +%Y-%m-%d)"
+            git pull --rebase origin main
             git push origin main
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
