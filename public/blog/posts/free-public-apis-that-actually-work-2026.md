@@ -1,6 +1,3 @@
----
-{"title": "Free Public APIs That Actually Work in 2026 (Daily Health-Checked)", "excerpt": "Most free API directories are full of dead links. We run daily health checks on 3,818 APIs so you only see endpoints that work right now.", "tags": ["API", "Health Check", "Tutorial"], "author": "SendAFun"}
----
 
 # Free Public APIs That Actually Work in 2026 (Daily Health-Checked)
 
