@@ -1,5 +1,17 @@
 [
   {
+    "slug": "public-apis-vs-apis-sendafun-comparison",
+    "title": "public-apis vs apis.sendafun.com: Which Free API Directory Is Better?",
+    "date": "2026-09-15",
+    "excerpt": "A head-to-head comparison of the public-apis GitHub repo and apis.sendafun.com — API count, health checks, search, and in-browser testing.",
+    "tags": [
+      "Comparison",
+      "public-apis",
+      "Review"
+    ],
+    "author": "SendAFun"
+  },
+  {
     "slug": "free-public-apis-that-actually-work-2026",
     "title": "Free Public APIs That Actually Work in 2026 (Daily Health-Checked)",
     "date": "2026-09-13",

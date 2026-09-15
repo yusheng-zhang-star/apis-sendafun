@@ -1,6 +1,3 @@
----
-{"title": "public-apis vs apis.sendafun.com: Which Free API Directory Is Better?", "excerpt": "A head-to-head comparison of the public-apis GitHub repo and apis.sendafun.com — API count, health checks, search, and in-browser testing.", "tags": ["Comparison", "public-apis", "Review"], "author": "SendAFun"}
----
 
 # public-apis vs apis.sendafun.com: Which Free API Directory Is Better?
 
