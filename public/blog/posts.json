@@ -1,5 +1,17 @@
 [
   {
+    "slug": "test-api-online-without-postman",
+    "title": "How to Test Any API Online Without Postman or Writing Code",
+    "date": "2026-09-17",
+    "excerpt": "Test 3,818 free APIs directly in your browser with the built-in API playground — no downloads, no accounts, no code required.",
+    "tags": [
+      "Tutorial",
+      "Playground",
+      "REST"
+    ],
+    "author": "SendAFun"
+  },
+  {
     "slug": "public-apis-vs-apis-sendafun-comparison",
     "title": "public-apis vs apis.sendafun.com: Which Free API Directory Is Better?",
     "date": "2026-09-15",

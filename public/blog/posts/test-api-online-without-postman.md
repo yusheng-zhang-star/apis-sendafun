@@ -1,6 +1,3 @@
----
-{"title": "How to Test Any API Online Without Postman or Writing Code", "excerpt": "Test 3,818 free APIs directly in your browser with the built-in API playground — no downloads, no accounts, no code required.", "tags": ["Tutorial", "Playground", "REST"], "author": "SendAFun"}
----
 
 # How to Test Any API Online Without Postman or Writing Code
 
